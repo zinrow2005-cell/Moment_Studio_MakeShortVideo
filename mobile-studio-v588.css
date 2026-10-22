@@ -1,0 +1,62 @@
+/* V5.88 genuine mobile workspace, uses existing editor engines and existing drawer. */
+.moment-mobile-studio{display:none}
+@media(max-width:740px){
+ .intro{display:none!important}
+ .workspace{display:flex!important;flex-direction:column!important;gap:10px!important}
+ .workspace>.editor{order:0!important;display:block!important;min-width:0!important;width:100%!important}
+ .workspace>.catalog{order:1!important}
+ .editor .previewhead{position:relative!important;z-index:2;display:flex!important;gap:8px;align-items:center}
+ .editor .stage{min-height:0!important;max-height:48dvh!important;display:flex!important;justify-content:center!important;background:#12151b!important;padding:5px!important}
+ .editor .stage canvas{height:auto!important;max-height:46dvh!important;max-width:100%!important;object-fit:contain!important}
+ .editor .transport{padding:8px 10px!important;min-height:48px!important}
+ .editor .shotbar{display:none!important}
+ .moment-mobile-studio{display:block;padding:11px 10px 14px;background:#fffdfa;border:1px solid #e4dfd4;border-radius:16px;margin:8px 4px 10px;min-width:0}
+ .ms-heading,.ms-timehead{display:flex;align-items:center;justify-content:space-between;gap:8px}.ms-heading strong{font-size:15px}.ms-heading span{font-size:11px;color:#69746e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45%}
+ .ms-tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0}.ms-tools button{padding:9px 2px;min-height:48px;border-radius:10px;background:#f2eee5;border:1px solid #e2dbcd;font-size:11px;color:#273d33;min-width:0;white-space:normal}
+ .ms-timehead{font-size:12px;padding:4px 0 9px}.ms-timehead span{font-variant-numeric:tabular-nums;color:#69746e}
+ .ms-track-scroller{position:relative;overflow:hidden;background:#202632;border-radius:10px;padding:8px 5px;display:flex;flex-direction:column;gap:6px}
+ .ms-film{display:flex;width:100%;gap:2px;min-height:66px}.ms-clip{flex:1 1 0;min-width:0;position:relative;height:66px;padding:0;background:#697d88;color:#fff;overflow:hidden;border:1px solid #ccd8da;border-radius:4px}.ms-clip.selected{outline:3px solid #ecb74c;outline-offset:-3px}.ms-clip img{width:100%;height:100%;object-fit:cover}.ms-clip small{position:absolute;left:2px;top:2px;background:#0009;color:#fff;font-size:9px;padding:1px 3px;border-radius:3px}.ms-empty{font-size:12px;color:#e2e2e2;padding:20px 9px}
+ .ms-audio{height:34px;background:#26786f;color:#e4fff8;border-radius:5px;position:relative;overflow:hidden;padding:5px 7px;font-size:11px}.ms-audio>span{position:relative;z-index:1;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ms-wave{position:absolute;inset:0;background-size:100% 100%;background-repeat:no-repeat;opacity:.55}
+ .ms-playhead{position:absolute;top:3px;bottom:3px;left:0;width:2px;background:#fff;box-shadow:0 0 0 1px #35414a,0 0 5px #fff;pointer-events:none}
+ #ms-scrub{width:100%;height:32px;margin:2px 0;touch-action:pan-y;accent-color:#226b56}.ms-note{font-size:11px;color:#748078;line-height:1.5}
+ .mobile-workbar{position:sticky!important;bottom:0!important;z-index:60!important;background:#fffdfa!important;box-shadow:0 -3px 14px #0001!important}
+}
+@media(min-width:741px) and (max-width:1100px){.workspace>.editor{min-width:0}.moment-mobile-studio{display:none}}
+
+/* V5.89 tablet editing layout: same true editing controls as phone, resized for touch. */
+@media (min-width:741px) and (max-width:1180px){
+ .moment-mobile-studio{display:block!important;width:calc(100% - 24px);box-sizing:border-box;padding:16px 18px;margin:12px auto 16px;max-width:1100px;border-radius:20px;background:#fffdfa;border:1px solid #e5dfd4;box-shadow:0 5px 28px #2221}
+ .workspace{display:flex!important;flex-direction:column!important;gap:12px!important}
+ .workspace>.editor{width:100%!important;max-width:none!important;min-width:0!important;order:0!important}
+ .workspace>.catalog{order:1!important;min-width:0!important;width:100%!important;max-width:none!important}
+ .editor .stage{height:auto!important;min-height:0!important;max-height:56dvh!important;display:flex!important;justify-content:center!important;align-items:center!important;background:#15171d!important}
+ .editor .stage canvas{max-height:54dvh!important;max-width:100%!important;height:auto!important;width:auto!important;object-fit:contain!important}
+ .editor .transport{min-height:50px!important}
+ .moment-mobile-studio .ms-heading,.moment-mobile-studio .ms-timehead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .moment-mobile-studio .ms-heading strong{font-size:18px}.moment-mobile-studio .ms-heading span{color:#63736a;font-size:13px}
+ .moment-mobile-studio .ms-tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:14px 0}
+ .moment-mobile-studio .ms-tools button{min-height:54px;border-radius:12px;border:1px solid #ddd8ce;background:#f2eee5;color:#243b31;font-size:14px;font-weight:600;padding:10px 5px;cursor:pointer}
+ .moment-mobile-studio .ms-timehead{padding:8px 1px 10px;font-size:14px}
+ .moment-mobile-studio .ms-timehead span{font-variant-numeric:tabular-nums;color:#63736a}
+ .moment-mobile-studio .ms-track-scroller{position:relative;display:flex;flex-direction:column;gap:9px;overflow:hidden;background:#202632;padding:12px;border-radius:14px}
+ .moment-mobile-studio .ms-film{display:flex;min-height:96px;gap:4px;width:100%}
+ .moment-mobile-studio .ms-clip{position:relative;min-width:0;flex:1 1 0;height:96px;overflow:hidden;background:#667c8b;padding:0;border:1px solid #ccd8da;border-radius:7px;color:white}
+ .moment-mobile-studio .ms-clip.selected{outline:3px solid #edba50;outline-offset:-3px}
+ .moment-mobile-studio .ms-clip img{height:100%;width:100%;object-fit:cover}
+ .moment-mobile-studio .ms-clip small{position:absolute;top:4px;left:4px;background:#000a;color:white;border-radius:3px;font-size:10px;padding:2px 4px}
+ .moment-mobile-studio .ms-empty{color:white;padding:30px 12px;font-size:14px}
+ .moment-mobile-studio .ms-audio{height:46px;position:relative;overflow:hidden;background:#26786f;color:#effff9;border-radius:7px;padding:10px;font-size:13px}
+ .moment-mobile-studio .ms-audio>span{position:relative;z-index:1;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .moment-mobile-studio .ms-wave{position:absolute;inset:0;background-size:100% 100%;background-repeat:no-repeat;opacity:.55}
+ .moment-mobile-studio .ms-playhead{position:absolute;top:3px;bottom:3px;left:0;width:2px;background:#fff;box-shadow:0 0 0 1px #34414a,0 0 5px #fff;pointer-events:none}
+ .moment-mobile-studio #ms-scrub{width:100%;height:44px;accent-color:#246e55;touch-action:pan-y}
+ .moment-mobile-studio .ms-note{font-size:13px;line-height:1.6;color:#6b7971}
+ .editor .shotbar{display:none!important}
+}
+@media (min-width:741px) and (max-width:1180px) and (orientation:landscape){
+ .editor .stage{max-height:48dvh!important}
+ .editor .stage canvas{max-height:46dvh!important}
+ .moment-mobile-studio{padding:12px 16px}
+ .moment-mobile-studio .ms-clip{height:76px}
+ .moment-mobile-studio .ms-film{min-height:76px}
+}

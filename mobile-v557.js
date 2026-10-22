@@ -7,7 +7,7 @@
  const scrim=document.createElement('button');scrim.type='button';scrim.className='mobile-theme-scrim';scrim.setAttribute('aria-label','關閉主題選單');body.append(scrim);
  const heading=document.createElement('span');heading.className='mobile-theme-heading';heading.textContent='🎨 探索主題';catalog.prepend(heading);
  const close=document.createElement('button');close.type='button';close.className='mobile-theme-close';close.textContent='✕';close.setAttribute('aria-label','關閉主題');catalog.prepend(close);
- const setTheme=open=>{body.classList.toggle('mobile-themes-open',!!open);q('#mobileTheme')?.setAttribute('aria-expanded',String(!!open));if(open){catalog.scrollTop=0;body.classList.remove('collapse-themes');}else{body.classList.add('collapse-themes');}};
+ const setTheme=open=>{body.classList.toggle('mobile-themes-open',!!open);q('#mobileTheme')?.setAttribute('aria-expanded',String(!!open));if(open){catalog.scrollTop=0;} };
  const goto=sel=>{const el=q(sel);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'start'});};
  [close,scrim].forEach(el=>el.addEventListener('click',()=>setTheme(false)));
  q('#mobileTheme')?.addEventListener('click',e=>{if(!mobile())return;e.stopImmediatePropagation();setTheme(!body.classList.contains('mobile-themes-open'));},true);
