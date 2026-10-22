@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "拾光˙剪映",
+  "short_name": "拾光˙剪映",
+  "description": "拾光照片與影片剪輯工作台",
+  "lang": "zh-TW",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone"
+  ],
+  "background_color": "#fff8e9",
+  "theme_color": "#f5f3ec",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

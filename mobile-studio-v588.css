@@ -60,3 +60,9 @@
  .moment-mobile-studio .ms-clip{height:76px}
  .moment-mobile-studio .ms-film{min-height:76px}
 }
+
+/* V5.91 tablet themes: don't let old media rules hide an opened panel */
+@media(min-width:741px) and (max-width:1180px){
+ .workspace>.catalog.tablet-theme-visible{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;max-height:75vh!important;overflow-y:auto!important}
+ .workspace>.catalog.tablet-theme-visible #cards{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(145px,1fr))!important}
+}

@@ -12,7 +12,7 @@
  transport.after(panel);
  const rail=panel.querySelector('#ms-film'),scrub=panel.querySelector('#ms-scrub'),audio=panel.querySelector('#ms-audio'),playhead=panel.querySelector('#ms-playhead');
  const goto=el=>{if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});};
- const actions={add:()=>{$('#quickUpload')?.click()||goto(list)},cover:()=>{$('#coverPanel')?goto($('#coverPanel')):goto(list)},reorder:()=>goto(list),theme:()=>{if(matchMedia('(max-width:740px)').matches)$('#mobileTheme')?.click();else goto($('.catalog'))},music:()=>{$('#openMusicLibrary')?.click()}};
+ const actions={add:()=>{const btn=$('#quickUpload');if(btn)btn.click();else goto(list)},cover:()=>{$('#coverPanel')?goto($('#coverPanel')):goto(list)},reorder:()=>goto(list),theme:()=>{if(matchMedia('(max-width:740px)').matches){$('#mobileTheme')?.click()}else{const catalog=$('.catalog');if(catalog){catalog.classList.add('tablet-theme-visible');goto(catalog)}}},music:()=>{const btn=$('#openMusicLibrary');if(btn)btn.click();else goto($('.audio-lane'))}};
  panel.querySelectorAll('[data-ms]').forEach(b=>b.addEventListener('click',()=>actions[b.dataset.ms]?.()));
  // Use the same underlying player; never maintain independent video time.
  let dragging=false;
