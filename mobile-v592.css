@@ -1,0 +1,58 @@
+
+/* V5.92 responsive repair. Keep functional controls in DOM for legacy callbacks. */
+@media(max-width:1180px){
+ .quickstart,#guidedProgress,#workflowHint,.compact-flow{display:none!important}
+ .workspace{display:flex!important;flex-direction:column!important}
+ .workspace>.editor{order:0!important}
+ .workspace>.catalog{order:2!important}
+ .editor .material-surface{order:-10!important}
+ .editor .finish-surface #exportReadiness,
+ .editor .finish-surface #shuffle,
+ .editor .finish-surface #export,
+ .editor .finish-surface #resultDownload{display:none!important}
+ .editor .previewhead #expand{display:none!important}
+ .editor .shotbar #previewDemo{display:none!important}
+ .moment-mobile-studio{display:block!important}
+ body.workspace-v532 .workspace .catalog,
+ body.workspace-v532.collapse-themes .workspace .catalog{
+   position:relative!important;inset:auto!important;z-index:3!important;
+   display:none!important;visibility:visible!important;opacity:1!important;
+   transform:none!important;width:100%!important;max-width:none!important;
+   height:auto!important;max-height:none!important;overflow:visible!important;
+   background:#fffaf1!important;color:#2d392f!important;
+   border:1px solid #dfd5c4!important;border-radius:18px!important;
+   padding:18px!important;box-shadow:none!important;margin:10px 0!important;
+ }
+ body.workspace-v532.mobile-themes-open .workspace .catalog,
+ body.workspace-v532.v592-themes-open .workspace .catalog{
+   display:block!important;position:relative!important;
+ }
+ body.v592-themes-open .mobile-theme-scrim{display:none!important}
+ .workspace .catalog .cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .workspace .catalog .cards>*{display:block!important;visibility:visible!important;opacity:1!important}
+ .mobile-theme-close,.mobile-theme-heading{display:none!important}
+ #v592ThemeClose{display:block;margin-left:auto;margin-bottom:10px}
+ #v592ThemeToggle{display:block;width:100%;margin:8px 0;padding:12px;background:#f0dfc2;border-radius:12px;color:#62492c;font-weight:700}
+}
+@media(min-width:741px) and (max-width:1180px){
+ .workspace .catalog .cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+@media(max-width:1180px){
+ .v592-materials{background:#fffcf5;border:1px solid #e1d7c7;border-radius:16px;padding:14px 12px;margin:8px 0 12px}
+ .v592-materials>h2{font-size:18px;margin:0 0 12px;color:#254f40}
+ .v592-materials .upload{display:flex!important;flex-wrap:wrap;gap:8px}
+ .v592-materials #mediaList{max-width:100%;overflow-x:hidden}
+ #v592ThemeToggle{display:block!important}
+ .v592-music-help{border:1px solid #decfb9;background:#fff9ec;border-radius:12px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;color:#493d2a}
+ .v592-music-help b,.v592-music-help p{width:100%;margin:0}
+ .v592-music-help button{border-radius:10px;min-height:44px;padding:8px 12px;background:#f0dfc2}
+ .quickstart,.guided-progress{display:none!important}
+}
+
+@media(max-width:1180px){
+ body.v592-themes-open .workspace>.catalog,
+ body.mobile-themes-open .workspace>.catalog{display:block!important;position:relative!important;visibility:visible!important;opacity:1!important;transform:none!important;inset:auto!important;max-height:none!important;overflow:visible!important;width:100%!important}
+ #workflowHint,.compact-flow{display:none!important}
+ .finish-surface #exportReadiness,.finish-surface #shuffle,.finish-surface #export,.previewhead #expand,.shotbar #previewDemo{display:none!important}
+}
