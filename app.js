@@ -25,7 +25,93 @@ const RAW=[
 ['節慶燈火團圓','情感與文化','#eee1cf','#b44c41','festival','有燈火的地方，就有團圓','燈籠、暖光點、紀念卡','燈串相片牆、聚會滿版','圓形開窗、暖光串場','溫暖節慶配樂、輕打擊','燈火亮起|佈置準備|團聚活動|送上祝福|全體合照'],
 ['田野職人紀錄','質感與紀錄','#e7e6d3','#687851','farm','把每一步努力，清楚留下','工作標籤、細格線、田野線條','全景與細節、前後對照','格線展開、簡潔方向擦拭','穩定木吉他、鋼琴、低強度節奏','場域日期|工作之前|實際過程|成果比較|工作摘要']
 ];
-const FUSION_THEME_ICONS=["theme_01.webp","theme_02.webp","theme_03.webp","theme_04.webp","theme_05.webp","theme_06.webp","theme_07.webp","theme_08.webp","theme_09.webp","theme_10.webp","theme_11.webp","theme_12.webp","theme_13.webp","theme_14.webp","theme_15.webp","theme_16.webp","theme_17.webp","theme_18.webp","theme_19.webp","theme_20.webp","theme_21.webp","theme_22.webp","theme_23.webp","theme_24.webp"];
+const FUSION_THEME_ICONS=["crayon_594/crayon_20.webp","crayon_594/crayon_05.webp","crayon_594/crayon_01.webp","crayon_594/crayon_12.webp","crayon_594/crayon_14.webp","crayon_594/crayon_02.webp","crayon_594/crayon_03.webp","crayon_594/crayon_19.webp","crayon_594/crayon_16.webp","crayon_594/crayon_23.webp","crayon_594/crayon_06.webp","crayon_594/crayon_07.webp","crayon_594/crayon_13.webp","crayon_594/crayon_18.webp","crayon_594/crayon_24.webp","crayon_594/crayon_04.webp","crayon_594/crayon_11.webp","crayon_594/crayon_17.webp","crayon_594/crayon_09.webp","crayon_594/crayon_10.webp","crayon_594/crayon_22.webp","crayon_594/crayon_21.webp","crayon_594/crayon_15.webp","crayon_594/crayon_08.webp"];
+// V5.95: the same local artwork powers the theme picker and the actual video canvas.
+// Cache images once: never initiate a network request per animation frame.
+const THEME_ART_IMAGES=FUSION_THEME_ICONS.map(rel=>{const im=new Image();im.decoding='async';im.src='assets/themes/'+rel;return im});
+// V5.96: deterministic, theme-specific accents shared by preview and export.
+// Each of 24 theme ids has a different motion signature; no frame-based randomness.
+const THEME_MOTION_596=[
+ ['album',.16,1],['confetti',.38,2],['leaves',.22,3],['balloons',.18,4],
+ ['route',.25,5],['waves',.20,6],['petals',.21,7],['celebrate',.36,8],
+ ['window',.10,9],['timeline',.14,10],['blossom',.19,11],['stickers',.40,12],
+ ['filmstrip',.17,13],['spotlight',.13,14],['neon',.32,15],['gallery',.10,16],
+ ['magazine',.28,17],['steam',.12,18],['pawprints',.27,19],['speedlines',.42,20],
+ ['orbit',.25,21],['ink',.12,22],['lanterns',.22,23],['fields',.15,24]
+];
+function themeArtworkLayer(c,w,h,t,sec,duration,scene){
+ const im=THEME_ART_IMAGES[t.id];if(!im||!im.complete||!im.naturalWidth)return;
+ const reduced=!!document.querySelector('#reduced')?.checked;
+ const opening=Math.max(0,1-sec/Math.max(.01,Math.min(2.2,duration*.16)));
+ const ending=Math.max(0,1-(duration-sec)/Math.max(.01,Math.min(2.2,duration*.16)));
+ const emphasis=Math.max(opening,ending);
+ const [motion,speed,signature]=THEME_MOTION_596[t.id]||THEME_MOTION_596[0];
+ const phase=reduced?0:sec*speed;
+ c.save();
+ // Restrained edge palette. Never paint a solid overlay over the whole photograph.
+ const wash=c.createLinearGradient(0,0,w,h);
+ wash.addColorStop(0,t.accent+'00');wash.addColorStop(.72,t.accent+'05');wash.addColorStop(1,t.accent+'16');
+ c.fillStyle=wash;c.fillRect(0,0,w,h);
+ const edge=Math.min(w,h),r=edge*.015;
+ const n=reduced?3:8;
+ for(let i=0;i<n;i++){
+  const u=(i+.5)/n, drift=Math.sin(phase*2+i*2.4), fall=((sec*speed*.18+i/n)%1);
+  let x=w*(.04+u*.92),y=h*(.08+.82*(i%2));
+  const left=i%2===0; x=left?w*(.04+u*.18):w*(.80+u*.16);
+  c.save();c.globalAlpha=reduced?.17:.17+emphasis*.12;c.strokeStyle=t.accent;c.fillStyle=t.accent;
+  c.lineWidth=Math.max(1,edge*.003);c.lineCap='round';
+  switch(motion){
+   case 'waves': case 'route': case 'timeline': case 'orbit': case 'ink': case 'fields':{
+    c.beginPath();
+    const base=motion==='waves'?.86:motion==='orbit'?.15:motion==='fields'?.91:.12;
+    const yy=h*base+(i%3)*r*2;
+    for(let j=0;j<=24;j++){const xx=w*j/24,dy=Math.sin(j*.44+phase+i*.6)*r*(motion==='waves'?1.5:.45); j?c.lineTo(xx,yy+dy):c.moveTo(xx,yy+dy)}
+    c.stroke();break;
+   }
+   case 'spotlight':case 'window':case 'gallery':case 'magazine':case 'filmstrip':{
+    c.strokeRect(x,y, r*(motion==='magazine'?3:2),r*(motion==='filmstrip'?3:2));
+    if(motion==='filmstrip')c.fillRect(x+r*.4,y+r*.4,r*.35,r*.35);
+    break;
+   }
+   case 'neon':case 'speedlines':{
+    c.beginPath();c.moveTo(x-r*2,y);c.lineTo(x+r*(2+Math.abs(drift)),y-r*(motion==='speedlines'?.8:.1));c.stroke();break;
+   }
+   case 'leaves':case 'petals':case 'blossom':case 'confetti':case 'celebrate':case 'stickers':{
+    y=h*((fall+.08*(i%2))%1);x+=drift*r*2;
+    c.translate(x,y);c.rotate(i+phase);c.beginPath();
+    if(['leaves','petals','blossom'].includes(motion))c.ellipse(0,0,r*.65,r*1.25,0,0,Math.PI*2);
+    else c.rect(-r*.5,-r*.5,r,r);
+    c.fill();break;
+   }
+   case 'balloons':case 'lanterns':case 'steam':{
+    y=h*(1-fall);x+=drift*r*2;
+    c.beginPath();c.ellipse(x,y,r*.8,r*1.2,0,0,Math.PI*2);c.stroke();
+    c.beginPath();c.moveTo(x,y+r);c.lineTo(x+drift*r,y+r*3);c.stroke();break;
+   }
+   case 'pawprints':{
+    c.beginPath();c.arc(x,y,r*.45,0,Math.PI*2);c.fill();
+    for(let k=0;k<3;k++){c.beginPath();c.arc(x+(k-1)*r*.6,y-r*.8,r*.2,0,Math.PI*2);c.fill()}break;
+   }
+   default:{ // album: subtle hand-drawn corner markers
+    c.beginPath();c.moveTo(x,y+r*2);c.lineTo(x,y);c.lineTo(x+r*2,y);c.stroke();
+   }
+  }
+  c.restore();
+ }
+ // Distinct per-theme postcard choreography at beginning/end, not all footage.
+ if(emphasis>.06){
+  c.save();c.globalAlpha=Math.min(.64,emphasis*(reduced?.24:.50));
+  const pw=w*(w<h?.29:.21),ph=pw*.68,m=w*.045;
+  const slide=reduced?0:(1-emphasis)*w*.07;
+  const x=signature%2?w-pw-m+slide:m-slide;
+  const y=h*(.07+(signature%3)*.025)+(reduced?0:Math.sin(phase*1.7)*r*.25);
+  c.fillStyle='#fff9ec';c.shadowColor='#0003';c.shadowBlur=w*.012;
+  c.fillRect(x-w*.008,y-w*.008,pw+w*.016,ph+w*.016);
+  c.shadowBlur=0;c.drawImage(im,x,y,pw,ph);c.restore();
+ }
+ c.restore();
+}
+
 const themes=RAW.map((r,i)=>({id:i,name:r[0],cat:r[1],bg:r[2],accent:r[3],kind:r[4],desc:r[5],decor:r[6],layout:r[7],transition:r[8],music:r[9],story:r[10].split('|')}));
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');let current=0,category='全部',media=[],playing=true,time=0,last=performance.now(),orderSeed=0,exporting=false,exportSession=null;const demos=[];
 function round(c,x,y,w,h,r=12){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r):c.rect(x,y,w,h)}
@@ -220,6 +306,7 @@ if(!reduced && music && $('#beatSync').checked){
  for(let k=0;k<5;k++){let x=w*(.12+k*.19),y=h*(.07+(k%2)*.025);c.beginPath();c.moveTo(x-5,y);c.lineTo(x+5,y);c.moveTo(x,y-5);c.lineTo(x,y+5);c.stroke()}
  c.restore();}
 }
+themeArtworkLayer(c,w,h,t,sec,duration,scene);
 MomentAtmosphere.draw(c,w,h,t,sec,duration,{foreground:$('#foreground').checked,light:$('#light').checked,opening:$('#opening').checked,ending:$('#ending').checked,strength:Number($('#atmosphere').value)||1,reduced},(i,x,y,pw,ph)=>drawPhoto(c,imgAt(i),x,y,pw,ph,0,1,false),media.length);
 let shade=c.createLinearGradient(0,h*.65,0,h);shade.addColorStop(0,'#10292100');shade.addColorStop(1,'#102921bb');c.fillStyle=shade;c.fillRect(0,h*.65,w,h*.35);
 let style=$('#textMotion').value==='auto'||!$('#textMotion').value?PROFILES[t.id].text:$('#textMotion').value,scope=$('#textScope').value,first=scene.index===0,lastScene=scene.index===getPlan().cuts.length-2||($('#ending').checked&&sec>duration-Math.min(3.2,duration*.16));
