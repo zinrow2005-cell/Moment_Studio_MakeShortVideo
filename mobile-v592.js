@@ -18,10 +18,10 @@
  const close=document.createElement('button');close.id='v592ThemeClose';close.type='button';close.textContent='完成選擇主題';
  catalog.prepend(close);
  function setTheme(v){document.body.classList.toggle('v592-themes-open',v);document.body.classList.toggle('mobile-themes-open',v);if(v)catalog.scrollIntoView({behavior:'smooth',block:'start'});}
- themeToggle.addEventListener('click',()=>setTheme(!document.body.classList.contains('v592-themes-open')));
- close.addEventListener('click',()=>setTheme(false));
+ themeToggle.addEventListener('click',()=>{if(matchMedia('(max-width:740px)').matches)return;setTheme(!document.body.classList.contains('v592-themes-open'))});
+ close.addEventListener('click',()=>{if(matchMedia('(max-width:740px)').matches)return;setTheme(false)});
  document.addEventListener('click',e=>{
- if(!mobile()||!e.target.closest('#quickThemes,#mobileTheme,[data-ms="theme"]'))return;
+ if(!mobile()||matchMedia('(max-width:740px)').matches||!e.target.closest('#quickThemes,#mobileTheme,[data-ms="theme"]'))return;
  e.preventDefault();e.stopImmediatePropagation();
  setTheme(!document.body.classList.contains('v592-themes-open'));
 },true);

@@ -1,0 +1,13 @@
+/* V5.93: only phone layout changes. Tablet and desktop remain intact. */
+@media(max-width:740px){
+ .v592-materials{display:none!important}
+ #v592ThemeToggle{display:block!important;margin:12px 0!important;min-height:48px}
+ .theme-music-panel{display:none!important}
+ #v593ThemeBackdrop{display:none;position:fixed;inset:0;z-index:2147483000;background:rgba(15,22,27,.52)}
+ body.v593-theme-dialog-open #v593ThemeBackdrop{display:block!important}
+ body.workspace-v532.v593-theme-dialog-open .workspace>.catalog,
+ body.v593-theme-dialog-open .workspace>.catalog{display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;inset:calc(env(safe-area-inset-top,0px) + 12px) 10px calc(env(safe-area-inset-bottom,0px) + 12px)!important;z-index:2147483001!important;transform:none!important;max-height:none!important;height:auto!important;width:auto!important;max-width:none!important;overflow-y:auto!important;overscroll-behavior:contain!important;margin:0!important;padding:18px!important;background:#fffaf1!important;color:#2d392f!important;box-shadow:0 18px 75px #0006!important;border-radius:18px!important}
+ body.v593-theme-dialog-open{overflow:hidden!important}
+ body.v593-theme-dialog-open #v592ThemeClose{display:block!important;position:sticky;top:0;z-index:2;background:#f3e3c5;padding:10px;border-radius:9px;min-height:44px}
+ body.v593-theme-dialog-open .workspace .catalog .cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+}
