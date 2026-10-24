@@ -44,6 +44,43 @@
  }
  const b64=blob=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=()=>reject(r.error);r.readAsDataURL(blob)});
  const dataBlob=async data=>{if(typeof data!=='string'||!/^data:[^,]*;base64,/.test(data))throw Error('備份內容有無效音檔');const r=await fetch(data);return r.blob()};
+
+ // V6.09: bounded, debounced autosave reuses this existing IndexedDB project store.
+ let autoTimer=0, autoBusy=false, dirty=false, lastSaved=0;
+ const maxAutoBytes=120*1024*1024;
+ const autoStatus=(message)=>{if(state)state.textContent=message};
+ async function autosave(){
+  if(autoBusy||!dirty||window.__momentRestoring||exporting)return;
+  if(!media.length)return;
+  const size=media.reduce((sum,m)=>sum+(m.file?.size||0),0)+(music?.file?.size||0);
+  if(size>maxAutoBytes){autoStatus('素材超過 120 MB，為避免手機儲存空間不足，請使用「儲存專案」或「下載完整備份」。');dirty=false;return}
+  autoBusy=true;
+  try{await saveStore(snapshot());dirty=false;lastSaved=Date.now();autoStatus('✓ 已自動儲存草稿（含素材與配樂）· '+new Date(lastSaved).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}))}
+  catch(e){autoStatus('自動儲存失敗：'+(e?.message||e)+'。可嘗試手動儲存或下載完整備份。')}
+  finally{autoBusy=false;if(dirty)scheduleAuto(12000)}
+ }
+ function scheduleAuto(delay=6000){if(window.__momentRestoring)return;dirty=true;clearTimeout(autoTimer);autoTimer=setTimeout(autosave,delay)}
+ document.addEventListener('moment:media-import-finished',()=>scheduleAuto(5000));
+ document.addEventListener('moment:music-import-finished',()=>scheduleAuto(5000));
+ window.addEventListener('moment:theme-changed',()=>{if(media.length)scheduleAuto()});
+ // Changes from the working editor (not the search box or navigation) update the same draft.
+ const editor=$('.editor');if(editor){editor.addEventListener('change',e=>{if(e.target.matches('input,select'))scheduleAuto()});}
+ window.addEventListener('pagehide',()=>{clearTimeout(autoTimer); /* IndexedDB cannot reliably finish when page closes; autosave is performed earlier. */});
+ // Offer recovery only after data is loaded, and never silently overwrite a new draft.
+ (async()=>{try{
+   const project=await readStore();if(!project?.materials?.length)return;
+   const dt=new Date(project.createdAt||Date.now());
+   const prompt=document.createElement('div');prompt.id='v609Recover';prompt.setAttribute('role','region');prompt.setAttribute('aria-label','恢復上次草稿');
+   Object.assign(prompt.style,{position:'fixed',left:'12px',right:'12px',bottom:'calc(82px + env(safe-area-inset-bottom))',zIndex:'900',maxWidth:'480px',margin:'0 auto',padding:'15px',border:'1px solid #d8c8aa',borderRadius:'16px',background:'#fffdf7',boxShadow:'0 12px 32px #0003',color:'#333'});
+   const msg=document.createElement('div');msg.textContent='找到上次保存的剪輯草稿（'+project.materials.length+' 個素材，'+dt.toLocaleString('zh-TW')+'）。要恢復嗎？';
+   const buttons=document.createElement('div');buttons.style.cssText='display:flex;gap:8px;margin-top:10px';
+   const accept=document.createElement('button');accept.type='button';accept.textContent='恢復草稿';
+   const dismiss=document.createElement('button');dismiss.type='button';dismiss.textContent='這次先不要';
+   buttons.append(accept,dismiss);prompt.append(msg,buttons);document.body.append(prompt);
+   dismiss.onclick=()=>prompt.remove();
+   accept.onclick=async()=>{accept.disabled=true;try{await restore(project);prompt.remove()}catch(e){autoStatus('草稿恢復失敗：'+(e?.message||e));accept.disabled=false}};
+  }catch(e){console.warn('[V6.09] draft discovery failed',e)}})();
+
  $('#projectSaveLocal').onclick=async()=>{try{say('正在保存完整素材至瀏覽器…');await saveStore(snapshot());say('✓ 已儲存完整專案至此瀏覽器。')}catch(e){say('保存失敗：'+e.message)}};
  $('#projectRestoreLocal').onclick=async()=>{try{const project=await readStore();if(!project){say('尚未儲存任何專案。');return}await restore(project)}catch(e){say('還原失敗：'+e.message)}};
  $('#projectExportFull').onclick=async()=>{try{say('正在製作完整備份（包含原始影片可能較大）…');const proj=snapshot();const records=[];for(const m of proj.materials)records.push({...m,blob:await b64(m.blob)});const audio=proj.audio?{...proj.audio,blob:await b64(proj.audio.blob)}:null;const output={...proj,materials:records,audio};const data=new Blob([JSON.stringify(output)],{type:'application/json'});if(data.size>350*1024*1024)throw Error('備份超過 350 MB，請改用瀏覽器本機儲存');const u=URL.createObjectURL(data);const a=document.createElement('a');a.href=u;a.download='MomentStudio-'+new Date().toISOString().slice(0,10)+'.momentproj';a.click();setTimeout(()=>URL.revokeObjectURL(u),60000);say('✓ 完整備份已產生（'+(data.size/1048576).toFixed(1)+' MB），可在其他裝置匯入。')}catch(e){say('備份失敗：'+e.message)}};
