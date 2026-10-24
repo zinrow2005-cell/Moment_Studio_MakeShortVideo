@@ -1,13 +1,19 @@
-/* V5.93: only phone layout changes. Tablet and desktop remain intact. */
+/* V5.98 mobile: native top-layer dialog and compact upload control */
 @media(max-width:740px){
- .v592-materials{display:none!important}
- #v592ThemeToggle{display:block!important;margin:12px 0!important;min-height:48px}
+ #v593ThemeBackdrop,.mobile-theme-scrim{display:none!important}
+ #v598Themes{position:fixed;inset:0;margin:auto;width:calc(100vw - 20px);max-width:720px;max-height:calc(100dvh - 24px);padding:14px;border:1px solid #e8dac3;border-radius:18px;background:#fffaf1;color:#283d34;overflow:auto;box-shadow:0 12px 50px #0004}
+ #v598Themes::backdrop{background:rgba(22,25,29,.48)}
+ #v598Themes .catalog{display:block!important;position:static!important;inset:auto!important;visibility:visible!important;opacity:1!important;transform:none!important;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fffaf1!important;box-shadow:none!important;margin:0!important;padding:4px!important;z-index:auto!important}
+ #v598Themes .catalog .cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ #v598Themes #v592ThemeClose{display:block!important;position:sticky;top:0;z-index:3;min-height:44px;background:#f0dfc2;border-radius:9px}
+ .v592-materials{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 10px!important}
+ .v592-materials>h2{display:none!important}
+ .v592-materials .upload{display:flex!important;visibility:visible!important;flex-wrap:wrap;gap:8px;padding:6px 0!important}
+ .v592-materials .upload #upload{display:inline-flex!important;min-height:48px!important;align-items:center}
+ .v592-materials .story-actions{display:none!important}
+ .v592-materials #mediaList{display:block!important}
  .theme-music-panel{display:none!important}
- #v593ThemeBackdrop{display:none;position:fixed;inset:0;z-index:2147483000;background:rgba(15,22,27,.52)}
- body.v593-theme-dialog-open #v593ThemeBackdrop{display:block!important}
- body.workspace-v532.v593-theme-dialog-open .workspace>.catalog,
- body.v593-theme-dialog-open .workspace>.catalog{display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;inset:calc(env(safe-area-inset-top,0px) + 12px) 10px calc(env(safe-area-inset-bottom,0px) + 12px)!important;z-index:2147483001!important;transform:none!important;max-height:none!important;height:auto!important;width:auto!important;max-width:none!important;overflow-y:auto!important;overscroll-behavior:contain!important;margin:0!important;padding:18px!important;background:#fffaf1!important;color:#2d392f!important;box-shadow:0 18px 75px #0006!important;border-radius:18px!important}
- body.v593-theme-dialog-open{overflow:hidden!important}
- body.v593-theme-dialog-open #v592ThemeClose{display:block!important;position:sticky;top:0;z-index:2;background:#f3e3c5;padding:10px;border-radius:9px;min-height:44px}
- body.v593-theme-dialog-open .workspace .catalog .cards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
 }
+
+/* V5.99: accessible theme modal, compact mobile editor */
+@media(max-width:740px){#v598Themes::backdrop{background:rgba(13,18,20,.26)}#v598Themes{max-height:calc(100dvh - 72px);overscroll-behavior:contain}#v598Themes .catalog button,#v598Themes #cards button{touch-action:manipulation}#v592ThemeToggle{margin-block:6px!important}#v592Materials .upload{width:100%!important}}

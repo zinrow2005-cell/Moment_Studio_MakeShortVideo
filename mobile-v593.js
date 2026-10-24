@@ -1,17 +1,26 @@
-/* V5.93 mobile-only overrides. Reuse original catalog and editing engine. */
+/* V5.98: true native theme dialog, no overlay z-index conflict. */
 (()=>{'use strict';
-function init(){const mobile=()=>matchMedia('(max-width:740px)').matches;const q=s=>document.querySelector(s);
-const catalog=q('.workspace>.catalog');if(!catalog)return;
-const toggle=q('#v592ThemeToggle');const close=q('#v592ThemeClose');
-const curtain=document.createElement('div');curtain.id='v593ThemeBackdrop';document.body.append(curtain);
-function show(open){if(!mobile())return;document.body.classList.toggle('v593-theme-dialog-open',open);document.body.classList.toggle('v592-themes-open',open);document.body.classList.toggle('mobile-themes-open',open);catalog.setAttribute('role','dialog');catalog.setAttribute('aria-modal','true');catalog.setAttribute('aria-label','挑選蠟筆主題');if(open){catalog.scrollTop=0;close?.focus();}}
-if(toggle){toggle.addEventListener('click',e=>{if(!mobile())return;e.stopImmediatePropagation();e.preventDefault();show(true)},true)}
-if(close)close.addEventListener('click',e=>{if(!mobile())return;e.preventDefault();e.stopImmediatePropagation();show(false)},true);
-curtain.addEventListener('click',()=>show(false));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('v593-theme-dialog-open'))show(false)});
-document.addEventListener('click',e=>{if(!mobile()||!e.target.closest('#quickThemes,#mobileTheme,[data-ms="theme"]'))return;e.preventDefault();e.stopImmediatePropagation();show(true)},true);
-catalog.addEventListener('click',e=>{if(!mobile()||!e.target.closest('#cards button,#cards [role="button"]'))return;setTimeout(()=>show(false),175)},true);
-// Eliminate old inline theme behavior without deleting the underlying controls.
-if(toggle){toggle.textContent='🎨 挑選蠟筆主題';toggle.setAttribute('aria-haspopup','dialog')}
+function init(){
+ const isPhone=()=>matchMedia('(max-width:740px)').matches;
+ const catalog=document.querySelector('.workspace>.catalog');if(!catalog)return;
+ const home=catalog.parentNode,next=catalog.nextSibling;
+ const dlg=document.createElement('dialog');dlg.id='v598Themes';dlg.setAttribute('aria-label','探索蠟筆主題');
+ document.body.append(dlg);
+ let inDialog=false;
+ function open(){if(!isPhone())return;document.body.classList.remove('v592-themes-open','mobile-themes-open','v593-theme-dialog-open');dlg.append(catalog);inDialog=true;if(!dlg.open)dlg.showModal();catalog.scrollTop=0;}
+ function close(){if(!inDialog)return;dlg.close();if(next&&next.parentNode===home)home.insertBefore(catalog,next);else home.append(catalog);inDialog=false;document.body.classList.remove('v592-themes-open','mobile-themes-open','v593-theme-dialog-open');}
+ dlg.addEventListener('cancel',e=>{e.preventDefault();close()});
+ // Do not close on backdrop taps: scrolling and rapid touches on iOS can be misclassified.
+ // Close explicitly with the finish button or Escape only.
+ catalog.querySelector('#v592ThemeClose')?.addEventListener('click',e=>{if(!isPhone())return;e.preventDefault();e.stopImmediatePropagation();close()},true);
+ catalog.querySelector('#cards')?.addEventListener('click',e=>{if(isPhone()&&e.target.closest('button,[role="button"]'))setTimeout(close,180)});
+ document.addEventListener('click',e=>{
+   if(!isPhone())return;
+   if(e.target.closest('#v592ThemeToggle,#quickThemes,#mobileTheme,[data-ms="theme"]')){
+     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();open();
+   }
+ },true);
+ window.addEventListener('resize',()=>{if(inDialog&&!isPhone())close()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

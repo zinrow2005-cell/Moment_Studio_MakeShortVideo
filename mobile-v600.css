@@ -1,0 +1,22 @@
+/* V6.00: phone-only visual reduction, preserve original engines and dialogs */
+#v600Bar{display:none}
+@media(max-width:740px){
+ #v600Bar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:75;background:#fffdf8;border-top:1px solid #e8dfd1;box-shadow:0 -4px 18px #0002;padding:7px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));gap:7px}
+ #v600Bar[hidden]{display:none!important}
+ #v600Bar button{border:1px solid #e4d8c4;background:#f7f1e6;color:#285344;border-radius:12px;min-height:52px;padding:5px;font-size:19px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+ #v600Bar button span{font-size:12px;font-weight:700}
+ #v600Bar button:last-child{background:#447d65;color:#fff}
+ body{padding-bottom:calc(77px + env(safe-area-inset-bottom))!important}
+ .mobile-workbar{display:none!important}
+ /* Do not show secondary duplicate bars in the main workspace. */
+ .moment-mobile-studio .ms-heading,.moment-mobile-studio .ms-tools,.moment-mobile-studio .ms-note{display:none!important}
+ .moment-mobile-studio{padding:8px!important;margin-top:7px!important}
+ #v592ThemeToggle{display:none!important}
+ /* Upload remains available from the bottom bar. Hide only the duplicate framing. */
+ .v592-materials{margin:0!important;padding:0!important}
+ .v592-materials>h2{display:none!important}
+ /* Original transport provides play/pause; avoid hiding it. */
+ .editor .stage{margin-top:0!important}
+ #v598Themes{z-index:999!important}
+ #v598Themes::backdrop{background:rgba(16,24,22,.28)!important}
+}

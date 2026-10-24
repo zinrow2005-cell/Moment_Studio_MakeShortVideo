@@ -4,7 +4,7 @@ let clips=[];let player=null;let running=false;let playToken=0;let activeUrl=nul
 const text=(value)=>String(value??'');
 const msg=(message,bad=false)=>{const n=$('timelineStatus');n.textContent=message;n.className='status '+(bad?'error':'success')};
 const normalize=(v,min,max,defaultValue)=>{const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):defaultValue};
-function cacheDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('music-center-offline-v21',1);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains('audio'))request.result.createObjectStore('audio',{keyPath:'key'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
+function cacheDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('music-center-offline-v21',3);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains('audio'))request.result.createObjectStore('audio',{keyPath:'key'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
 async function cacheGet(key){const db=await cacheDB();return new Promise((resolve,reject)=>{const transaction=db.transaction('audio','readonly');const r=transaction.objectStore('audio').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);transaction.oncomplete=()=>db.close()})}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({version:1,updatedAt:new Date().toISOString(),clips}))}catch(e){msg('專案儲存失敗，瀏覽器可能沒有剩餘儲存空間：'+e.message,true)}}
 function laterSave(){clearTimeout(persistTimer);persistTimer=setTimeout(save,120)}

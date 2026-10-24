@@ -1,7 +1,7 @@
 /* V5.9 : permissible source download, per-song progress, IndexedDB reuse */
 (()=>{'use strict';
 const DB_NAME='moment-crayon-audio-v59',STORE='tracks',MAX_BYTES=80*1024*1024;
-function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,3);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
 async function dbGet(key){const db=await openDB();try{return await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const r=tx.objectStore(STORE).get(key);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}finally{db.close()}}
 async function dbPut(key,value){const db=await openDB();try{return await new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(value,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}finally{db.close()}}
 const processing=new Set();

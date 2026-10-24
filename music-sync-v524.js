@@ -10,7 +10,7 @@ const info=document.createElement('p');info.id='mtSyncStatus';info.className='mt
 info.textContent='可把音樂中心 V2.6 的多段片段設定及已下載的音檔匯入主編輯器。';
 $('#mainTimeline')?.append(info);
 const savedKey='music-center-v26-project';
-function fetchBlob(key){return new Promise((resolve,reject)=>{const request=indexedDB.open('music-center-offline-v21',1);request.onerror=()=>reject(request.error||Error('無法開啟本機音樂庫'));request.onsuccess=()=>{const db=request.result;try{const tx=db.transaction('audio','readonly');const req=tx.objectStore('audio').get(key);req.onsuccess=()=>resolve(req.result?.blob||null);req.onerror=()=>reject(req.error);tx.oncomplete=()=>db.close()}catch(e){db.close();reject(e)}}})}
+function fetchBlob(key){return new Promise((resolve,reject)=>{const request=indexedDB.open('music-center-offline-v21',2);request.onerror=()=>reject(request.error||Error('無法開啟本機音樂庫'));request.onsuccess=()=>{const db=request.result;try{const tx=db.transaction('audio','readonly');const req=tx.objectStore('audio').get(key);req.onsuccess=()=>resolve(req.result?.blob||null);req.onerror=()=>reject(req.error);tx.oncomplete=()=>db.close()}catch(e){db.close();reject(e)}}})}
 async function importProject(project){if(exporting){info.textContent='匯出中不可更改音樂軌。';return}const items=Array.isArray(project?.clips)?project.clips:[];if(!items.length){info.textContent='音樂中心沒有可匯入的剪輯片段。';return}
  button.disabled=true;info.textContent='正在讀取 '+items.length+' 段音樂的本機快取…';
  const prepared=[],missing=[];
