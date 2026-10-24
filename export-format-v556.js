@@ -5,12 +5,14 @@ function init(){const exportBtn=$('export');if(!exportBtn||$('exportFormatV556')
 const panel=document.createElement('div');panel.id='exportFormatV556';panel.className='export-format-v556';panel.innerHTML='<label for="formatChoiceV556"><strong>分享影片格式</strong></label><select id="formatChoiceV556" aria-label="輸出影片格式"><option value="auto">自動：優先 MP4</option><option value="mp4">只輸出 MP4（較適合 LINE／FB）</option><option value="webm">輸出 WebM</option></select><p id="formatCapabilityV556" role="status"></p>';
 exportBtn.parentElement?.insertAdjacentElement('beforebegin',panel);
 const settings=document.createElement('div');settings.className='export-quality-v581';settings.innerHTML=`<label for="qualityV581"><strong>輸出畫質</strong></label>
-<select id="qualityV581"><option value="720">流暢 720p（手機建議）</option><option value="1080">高畫質 1080p</option><option value="540">省空間 540p</option></select>
-<p id="qualityNoteV581">720p・30fps；影片畫質會受瀏覽器編碼器與裝置效能影響。</p>`;
+<select id="qualityV581"><option value="1080" selected>Full HD 1080P（預設）</option><option value="1440">2K 1440P（高畫質）</option><option value="2160">4K 2160P（高效能裝置）</option></select>
+<p id="qualityNoteV581">最低 1080P・30fps・14 Mbps；2K／4K 需更高裝置效能，可能無法輸出。</p>`;
 panel.after(settings);
 const quality=settings.querySelector('#qualityV581');
-quality.addEventListener('change',()=>{settings.querySelector('#qualityNoteV581').textContent=quality.value+'p・30fps；高畫質可能提高記憶體及匯出時間。';});
-window.momentOutputSettings=()=>{const size=Number(quality.value)||720;return {longEdge:size===1080?1920:size===540?960:1280,bitrate:size===1080?6500000:size===540?2000000:3500000,fps:30}};
+const presets={1080:{longEdge:1920,bitrate:14000000,fps:30},1440:{longEdge:2560,bitrate:22000000,fps:30},2160:{longEdge:3840,bitrate:35000000,fps:30}};
+function qualityLabel(){const p=presets[quality.value]||presets[1080];settings.querySelector('#qualityNoteV581').textContent=quality.value+'P・'+p.fps+'fps・目標 '+(p.bitrate/1e6)+' Mbps'+(quality.value==='1080'?'（最低及預設畫質）':'；高解析度可能導致手機記憶體不足或編碼失敗，實際碼率由瀏覽器決定。');}
+quality.addEventListener('change',qualityLabel);quality.value='1080';qualityLabel();
+window.momentOutputSettings=()=>({...presets[quality.value]||presets[1080]});
 const select=$('formatChoiceV556'),note=$('formatCapabilityV556');
 window.momentExportFormatPreference=()=>select.value;
 const mp4=['video/mp4;codecs="avc1.42E01E,mp4a.40.2"','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4'];
