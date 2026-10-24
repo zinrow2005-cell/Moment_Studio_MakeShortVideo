@@ -113,7 +113,7 @@ function themeArtworkLayer(c,w,h,t,sec,duration,scene){
 }
 
 const themes=RAW.map((r,i)=>({id:i,name:r[0],cat:r[1],bg:r[2],accent:r[3],kind:r[4],desc:r[5],decor:r[6],layout:r[7],transition:r[8],music:r[9],story:r[10].split('|')}));
-const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');let current=0,category='全部',media=[],playing=true,time=0,last=performance.now(),orderSeed=0,exporting=false,exportSession=null;const demos=[];
+const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');let current=0,category='全部',media=[],playing=true,time=0,last=performance.now(),orderSeed=0,exporting=false,exportSession=null;const demos=[];window.MomentMediaItems=()=>media;
 function round(c,x,y,w,h,r=12){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r):c.rect(x,y,w,h)}
 function ellipse(c,x,y,rx,ry,color){c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill()}
 function path(c,points,color,width=2){c.strokeStyle=color;c.lineWidth=width;c.beginPath();points.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.stroke()}

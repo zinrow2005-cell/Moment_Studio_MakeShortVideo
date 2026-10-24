@@ -18,7 +18,8 @@
  if(material){if(story)material.append(story);if(mediaList){const detail=document.createElement('details');detail.id='mediaDetailsV523';detail.className='material-details';const summary=document.createElement('summary');summary.textContent='檢視與調整素材順序';detail.append(summary);mediaList.before(detail);detail.append(mediaList);material.append(detail);}}
  const sound=music?block('sound','挑選影片配樂',music):null;
  const publish=actions?block('publish','預覽完成後輸出',actions):null;
- if(publish){const r=$('#exportReadiness');if(r)publish.insertBefore(r,actions);const progress=$('#exportProgress'),status=$('#status'),result=$('#result');[progress,status,result].forEach(n=>{if(n)publish.append(n)});const previews=document.createElement('div');previews.className='workflow-preview-actions';previews.innerHTML='<button type="button" id="previewFromSteps">▶ 播放預覽</button><button type="button" id="expandFromSteps">⛶ 放大查看</button>';publish.insertBefore(previews,actions);$('#previewFromSteps').addEventListener('click',()=>{if($('#play')?.textContent.trim()==='▶')$('#play').click();$('.stage')?.scrollIntoView({behavior:'smooth',block:'center'});});$('#expandFromSteps').addEventListener('click',()=>$('#expand')?.click());}
+ if(publish){const r=$('#exportReadiness');if(r)publish.insertBefore(r,actions);const progress=$('#exportProgress'),status=$('#status'),result=$('#result');[progress,status,result].forEach(n=>{if(n)publish.append(n)});/* preview and expand redundant; removed */}
+
  // Remove visual duplication, not the original controls required by the rendering engine.
  const hint=$('#workflowHint');if(hint)hint.hidden=true;
  const labels=[...settings.querySelectorAll('.sideblock-label')];labels.forEach(n=>n.hidden=true);

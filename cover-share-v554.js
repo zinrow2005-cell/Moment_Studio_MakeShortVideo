@@ -1,7 +1,7 @@
 /* Moment Studio V5.68 — simple cover designer from selected photo */
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
-const state={title:'',place:'',time:'',font:'Noto Serif TC',titleSize:54,placeSize:28,timeSize:24,image:null,imageUrl:'',objectUrl:null,positions:{title:{x:.10,y:.66},place:{x:.10,y:.75},time:{x:.10,y:.81}}};
+const state={title:'',place:'',time:'',font:'Noto Serif TC',titleSize:54,placeSize:28,timeSize:24,image:null,imageUrl:'',objectUrl:null,template:0,positions:{title:{x:.10,y:.66},place:{x:.10,y:.75},time:{x:.10,y:.81}}};
 let dialog,preview;
 const FONT_OPTIONS=[
  {value:'Noto Serif TC',label:'思源宋體 / Noto Serif TC'},
@@ -36,8 +36,9 @@ function injectStyle(){
  .cover-design-dialog{width:min(960px,96vw);max-width:96vw;border:none;border-radius:24px;padding:0;overflow:hidden;background:#fffaf2;box-shadow:0 20px 60px rgba(40,25,0,.22)}
  .cover-design-dialog::backdrop{background:rgba(22,20,18,.45)}
  .cover-design-wrap{display:grid;grid-template-columns:minmax(280px,1.1fr) minmax(300px,.9fr);gap:0;height:min(92dvh,860px);max-height:92dvh}
- .cover-design-preview{padding:12px;min-height:0;background:linear-gradient(180deg,#fff9ef,#f5ecda);display:flex;align-items:center;justify-content:center}
+ .cover-design-preview{padding:12px;min-height:0;background:linear-gradient(180deg,#fff9ef,#f5ecda);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
  .cover-preview-canvas{width:100%;aspect-ratio:9/16;max-height:85dvh;background:#eee;border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+ .cover-motion-preview-v611{background:#396f5e;color:white;border:0;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0}
  .cover-design-form{padding:15px 15px 12px;overflow:auto;display:flex;flex-direction:column;gap:8px;min-height:0}
  .cover-design-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
  .cover-design-head b{font-size:1.12rem}.cover-design-head small{display:block;color:#7d6e5b;margin-top:4px}
@@ -70,12 +71,14 @@ function buildDialog(){
  dialog.innerHTML=`<div class="cover-design-wrap">
    <div class="cover-design-preview">
      <canvas id="coverPreviewCanvasV568" class="cover-preview-canvas" width="900" height="1600"></canvas>
+     <button type="button" id="coverMotionPreviewV611" class="cover-motion-preview-v611">▶ 播放 2 秒封面動畫</button>
    </div>
    <div class="cover-design-form">
      <div class="cover-design-head">
        <div><b>封面設計</b><small>封面會在影片前 2 秒顯示（片長維持原設定）</small></div>
        <button type="button" class="cover-close-btn" id="coverCloseBtnV568">✕ 關閉</button>
      </div>
+     <div class="cover-field"><label>封面樣板（六款）</label><div id="coverTemplatesV610" class="cover-templates-v610" role="group" aria-label="選擇封面樣板"></div></div>
      <div class="cover-picked" id="coverPickedNameV568">尚未選擇封面照片</div>
      <div class="cover-font-block cover-field">
        <label for="coverFontSelectV568">藝術字體</label>
@@ -101,7 +104,10 @@ function buildDialog(){
    </div>
  </div>`;
  document.body.append(dialog);
- preview=$('#coverPreviewCanvasV568');setupDrag();fitCoverRatio();
+ preview=$('#coverPreviewCanvasV568');setupDrag();fitCoverRatio();$('#coverMotionPreviewV611').addEventListener('click',playCoverPreviewV611);
+ const templates=['經典故事','底片日記','清新手繪','電影海報','旅行明信片','極簡留白'];
+ const templateBox=$('#coverTemplatesV610');
+ templates.forEach((name,i)=>{const b=document.createElement('button');b.type='button';b.textContent=name;b.dataset.template=String(i);b.setAttribute('aria-pressed',String(i===state.template));b.addEventListener('click',()=>{state.template=i;templateBox.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));state.positions=(({0:{title:{x:.10,y:.66},place:{x:.10,y:.75},time:{x:.10,y:.81}},1:{title:{x:.10,y:.15},place:{x:.10,y:.79},time:{x:.10,y:.85}},2:{title:{x:.12,y:.65},place:{x:.12,y:.77},time:{x:.12,y:.84}},3:{title:{x:.09,y:.32},place:{x:.09,y:.77},time:{x:.09,y:.84}},4:{title:{x:.11,y:.12},place:{x:.11,y:.75},time:{x:.11,y:.82}},5:{title:{x:.10,y:.71},place:{x:.10,y:.80},time:{x:.10,y:.86}}})[i]);coverCacheKey='';renderPreview();updatePoster();});templateBox.append(b)});
  const bind=(id,key,outId)=>{
    const el=$(id),out=$(outId);
    const sync=()=>{state[key]=id.includes('Size')?Number(el.value):el.value;if(out)out.textContent=String(el.value);renderPreview();updatePoster();if(key==='font'){loadSelectedFont();}};
@@ -117,7 +123,7 @@ function buildDialog(){
  bind('#coverTimeSizeV568','timeSize','#coverTimeSizeTextV568');
  $('#coverCloseBtnV568').onclick=()=>dialog.close();
  $('#coverDoneBtnV568').onclick=()=>dialog.close();
- dialog.addEventListener('close',()=>updatePoster());
+ dialog.addEventListener('close',()=>{cancelAnimationFrame(motionPreviewFrameV611);$('#coverMotionPreviewV611').disabled=false;updatePoster()});
 }
 let fontLoadGeneration=0;
 async function loadSelectedFont(){
@@ -167,26 +173,95 @@ function textLayout(ctx,w,h,field){
  const y=Math.min(Math.max(h*.03,pos.y*h),Math.max(h*.03,h*.97-height));
  return {lines,x,y,size,width,height};
 }
-function drawScene(ctx,w,h){
- ctx.clearRect(0,0,w,h);
- if(state.image&&state.image.complete&&state.image.naturalWidth){
-   const img=state.image; const scale=Math.max(w/img.naturalWidth,h/img.naturalHeight);
-   const dw=img.naturalWidth*scale, dh=img.naturalHeight*scale;
-   ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);
- } else {
-   const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#f8e9c8');g.addColorStop(1,'#d7c0ff');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+const easeV611=p=>{p=clamp01(p);return p*p*(3-2*p)};
+const appearV611=(sec,start,duration=.3)=>easeV611((sec-start)/duration);
+let motionPreviewFrameV611=0;
+function drawScene(ctx,w,h,sec=null){
+ // sec=null is the still image used for the sharing poster / manual text dragging.
+ const animated=Number.isFinite(sec),t=animated?Math.max(0,Math.min(2,sec)):1.2;
+ const intro=appearV611(t,0,.38),finish=animated?1-appearV611(t,1.76,.24):1;
+ ctx.save();ctx.clearRect(0,0,w,h);
+ if(state.template===5){ctx.fillStyle='#f6f1e6';ctx.fillRect(0,0,w,h)}
+ else {ctx.fillStyle=state.template===1?'#332c27':'#fff1dc';ctx.fillRect(0,0,w,h)}
+ ctx.save();
+ // Every style has its own camera choreography but uses the same user selected photo.
+ if(animated){
+  if(state.template===0){const z=1.05-.05*intro+.025*t/2;ctx.translate(w/2,h/2);ctx.scale(z,z);ctx.translate(-w/2,-h/2);ctx.globalAlpha=intro}
+  if(state.template===1){const z=.78+.22*appearV611(t,.02,.45);ctx.translate(w/2,h/2);ctx.rotate((1-intro)*-.055);ctx.scale(z,z);ctx.translate(-w/2,-h/2);ctx.globalAlpha=appearV611(t,.15,.45)}
+  if(state.template===2){ctx.globalAlpha=appearV611(t,.1,.38)}
+  if(state.template===3){const z=1.075-.065*appearV611(t,0,.65);ctx.translate(w/2,h/2);ctx.scale(z,z);ctx.translate(-w/2,-h/2);ctx.globalAlpha=appearV611(t,.05,.35)}
+  if(state.template===4){ctx.translate(w*(1-appearV611(t,.05,.43))*.34,h*(1-appearV611(t,.05,.43))*.13);ctx.rotate((1-intro)*.085);ctx.globalAlpha=appearV611(t,.06,.4)}
+  if(state.template===5){ctx.globalAlpha=appearV611(t,0,.60);const z=1.025-.025*intro;ctx.translate(w/2,h/2);ctx.scale(z,z);ctx.translate(-w/2,-h/2)}
  }
- const overlay=ctx.createLinearGradient(0,0,0,h); overlay.addColorStop(0,'rgba(14,18,28,.08)'); overlay.addColorStop(.62,'rgba(14,18,28,.08)'); overlay.addColorStop(1,'rgba(14,18,28,.72)');
- ctx.fillStyle=overlay; ctx.fillRect(0,0,w,h);
- ctx.fillStyle='rgba(255,255,255,.17)'; ctx.beginPath(); ctx.arc(w*.84,h*.18,w*.11,0,Math.PI*2); ctx.fill();
- ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(w*.1,h*.15); ctx.quadraticCurveTo(w*.22,h*.08,w*.34,h*.16); ctx.stroke();
- ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle='#fff';
+ if(state.image&&state.image.complete&&state.image.naturalWidth){
+  const img=state.image,scale=Math.max(w/img.naturalWidth,h/img.naturalHeight);
+  const dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;
+  ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);
+ }else {const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#f8e9c8');g.addColorStop(1,'#d7c0ff');ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}
+ ctx.restore();
+ const overlay=ctx.createLinearGradient(0,0,0,h);
+ overlay.addColorStop(0,state.template===4?'rgba(250,225,190,.18)':'rgba(14,18,28,.08)');
+ overlay.addColorStop(.62,'rgba(14,18,28,.08)');
+ overlay.addColorStop(1,state.template===5?'rgba(14,18,28,.30)':'rgba(14,18,28,.72)');
+ ctx.fillStyle=overlay;ctx.fillRect(0,0,w,h);
+ const dec=animated?appearV611(t,.38,.42):1;
+ ctx.save();ctx.globalAlpha=dec;
+ if(state.template===0){
+  ctx.strokeStyle='#f5e9d6';ctx.lineWidth=w*.006;ctx.strokeRect(w*.065,h*.055,w*.87,h*.89);
+  for(let i=0;i<5;i++){const x=w*(.11+i*.19),y=h*(.13+Math.sin(i*2.5+t*1.7)*.014);ctx.beginPath();ctx.arc(x,y,w*.006,0,7);ctx.fillStyle='#fff1b9';ctx.fill()}
+ }
+ if(state.template===1){
+  ctx.strokeStyle='#fff8e6';ctx.lineWidth=w*.018;ctx.strokeRect(w*.05,h*.04,w*.9,h*.92);
+  for(let i=0;i<8;i++){const x=w*(.07+i*.115);ctx.fillStyle='#fdf1d8';ctx.fillRect(x,h*.052,w*.044,h*.02);ctx.fillRect(x,h*.928,w*.044,h*.02)}
+  ctx.save();ctx.globalAlpha=.13+Math.max(0,1-t*2)*.55;ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.restore();
+ }
+ if(state.template===2){
+  ctx.strokeStyle='#fff9e8';ctx.lineWidth=w*.012;ctx.setLineDash([w*.018,w*.023]);ctx.lineDashOffset=-t*w*.24;
+  ctx.strokeRect(w*.06,h*.05,w*.88,h*.90);ctx.setLineDash([]);
+  for(let i=0;i<7;i++){const x=w*(.12+i*.12),y=h*(.12+Math.sin(t*2+i)*.014);ctx.fillStyle=i%2?'#fce8a3':'#ffe1e9';ctx.beginPath();ctx.arc(x,y,w*.009,0,7);ctx.fill()}
+ }
+ if(state.template===3){
+  ctx.fillStyle='rgba(0,0,0,.46)';ctx.fillRect(0,h*.25,w,h*.26);
+  const x=w*(t*.9-0.2);const shine=ctx.createLinearGradient(x-w*.15,0,x+w*.15,0);shine.addColorStop(0,'#fff0');shine.addColorStop(.5,'#fffb');shine.addColorStop(1,'#fff0');ctx.globalAlpha=.16*appearV611(t,.6,.3);ctx.fillStyle=shine;ctx.fillRect(0,0,w,h);ctx.globalAlpha=dec;
+ }
+ if(state.template===4){
+  ctx.fillStyle='rgba(255,246,217,.76)';ctx.fillRect(w*.055,h*.055,w*.89,h*.14);
+  ctx.strokeStyle='#f8ede1';ctx.lineWidth=w*.007;ctx.setLineDash([w*.012,w*.016]);ctx.lineDashOffset=t*w*.11;ctx.beginPath();ctx.moveTo(w*.16,h*.92);ctx.quadraticCurveTo(w*.4,h*.74,w*.80,h*.87);ctx.stroke();ctx.setLineDash([]);
+  const stamp=appearV611(t,.43,.25);ctx.save();ctx.globalAlpha=stamp;ctx.translate(w*.8,h*.22);ctx.rotate(-.15);ctx.strokeStyle='#fff3d4';ctx.lineWidth=w*.008;ctx.strokeRect(-w*.08,-w*.08,w*.16,w*.16);ctx.restore();
+ }
+ if(state.template===5){ctx.fillStyle='rgba(255,255,255,.87)';ctx.fillRect(0,h*.67,w,h*.33);ctx.strokeStyle='#a88e78';ctx.lineWidth=w*.002;ctx.beginPath();ctx.moveTo(w*.10,h*.685);ctx.lineTo(w*(.10+.80*appearV611(t,.75,.60)),h*.685);ctx.stroke()}
+ ctx.restore();
+ ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle=state.template===5?'#22362c':'#fff';
  ctx.shadowColor='rgba(0,0,0,.42)';ctx.shadowBlur=Math.max(9,w*.018);
- for(const field of ['title','place','time']){
-   const layout=textLayout(ctx,w,h,field);if(!layout)continue;
-   layout.lines.forEach((line,i)=>ctx.fillText(line,layout.x,layout.y+i*layout.size*1.16,w*.84));
+ for(const [index,field] of ['title','place','time'].entries()){
+  const layout=textLayout(ctx,w,h,field);if(!layout)continue;
+  // Stagger title, place, and date; film diary reveals text progressively.
+  const start=[.48,.76,.95][index]+(state.template===1?.14:0);
+  const alpha=animated?appearV611(t,start,state.template===1?.23:.29):1;
+  ctx.save();ctx.globalAlpha=alpha;
+  const rise=animated?(1-alpha)*h*.014:0;
+  layout.lines.forEach((line,i)=>{
+    const shown=state.template===1&&animated?Array.from(line).slice(0,Math.floor(Array.from(line).length*appearV611(t,start,.35))).join(''):line;
+    ctx.fillText(shown,layout.x,layout.y+i*layout.size*1.16+rise,w*.84)
+  });ctx.restore();
  }
  ctx.shadowBlur=0;
+ // Dissolve the cover gracefully into the first content frame.
+ if(animated&&finish<1){ctx.globalAlpha=1-finish;ctx.fillStyle=state.template===5?'#fffdf6':'#151b22';ctx.fillRect(0,0,w,h)}
+ ctx.restore();
+}
+function playCoverPreviewV611(){
+ if(!preview)return;
+ cancelAnimationFrame(motionPreviewFrameV611);
+ const button=$('#coverMotionPreviewV611');button.disabled=true;
+ const started=performance.now();
+ const frame=now=>{
+  const sec=Math.min(2,(now-started)/1000);
+  drawScene(preview.getContext('2d'),preview.width,preview.height,sec);
+  if(sec<2&&dialog?.open)motionPreviewFrameV611=requestAnimationFrame(frame);
+  else {button.disabled=false;renderPreview()}
+ };
+ motionPreviewFrameV611=requestAnimationFrame(frame);
 }
 function renderPreview(){ if(!preview) return; const ctx=preview.getContext('2d'); drawScene(ctx,preview.width,preview.height); }
 function setupDrag(){
@@ -282,15 +357,11 @@ function coverTransition(ctx,w,h,progress,themeId){
  if(p>=.999)ctx.globalAlpha=0;
 }
 function paintIntoVideo(ctx,w,h,sec=0,themeId=0){
- if(!state.image||sec>=2)return;
- const key=[w,h,state.imageUrl,state.title,state.place,state.time,state.font,state.titleSize,state.placeSize,state.timeSize,JSON.stringify(state.positions),fontLoadGeneration].join('|');
- if(key!==coverCacheKey){
-  coverCache=document.createElement('canvas');coverCache.width=w;coverCache.height=h;
-  drawScene(coverCache.getContext('2d'),w,h);coverCacheKey=key;
- }
+ if(!state.image||sec<0||sec>=2)return;
  ctx.save();
- if(sec>1.25)coverTransition(ctx,w,h,(sec-1.25)/.75,themeId);
- ctx.drawImage(coverCache,0,0,w,h);
+ drawScene(ctx,w,h,sec);
+ // A brief, deterministic fade out at the end. Does not depend on FPS.
+ if(sec>1.78){ctx.globalAlpha=easeV611((sec-1.78)/.22);ctx.fillStyle=state.template===5?'#fffdf6':'#141824';ctx.fillRect(0,0,w,h)}
  ctx.restore();
 }
 
@@ -347,7 +418,7 @@ function init(){
   window.__momentRefreshMediaList?.();
  });
  window.addEventListener('moment:set-cover-photo',e=>setCover(e.detail?.item));
- window.MomentCover={setCover,renderPreview,getPosterDataUrl,paintIntoVideo,state};
+ window.MomentCover={setCover,renderPreview,getPosterDataUrl,paintIntoVideo,state,openDesigner:()=>{buildDialog();syncInputs();fitCoverRatio();renderPreview();if(!dialog.open)dialog.showModal()}};
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 })();
